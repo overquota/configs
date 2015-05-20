@@ -1,0 +1,3 @@
+### Aliases
+alias salt exec #1 salt-call -l error state.highstate --retcode-passthrough
+alias p_salt p_exec #1 salt-call -l error state.highstate --retcode-passthrough
