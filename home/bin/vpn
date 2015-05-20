@@ -1,0 +1,39 @@
+#!/bin/bash
+# Start/stop openvpn
+CMD="/usr/sbin/openvpn"
+CFG="/etc/openvpn/openvpn.conf"
+STATUS=$1
+SCRIPTNAME=`basename $0`
+
+function check_vpn {
+	process="openvpn --config /etc/openvpn/openvpn.conf"
+	pid=`ps auxw | grep "$process" | grep -v grep | awk '{print $2}'`
+	if [[ -z "$pid" ]]; then
+		echo "disabled"
+	else
+		echo "running, pid is $pid"
+	fi
+}
+
+if [[ -z "$STATUS" ]]; then
+	echo "Usage: vpn [start|stop|status]"
+	exit 1
+fi
+
+if [[ "$STATUS" == "start" ]]; then
+	if [[ `check_vpn` == "disabled" ]]; then
+		sudo $CMD --config $CFG
+	else
+		echo `check_vpn`
+	fi
+elif [[ "$STATUS" == "stop" ]]; then
+	if [[ `check_vpn` == "disabled" ]]; then
+		echo "Not running"
+	else
+		sudo kill -6 `check_vpn | awk '{print $NF}'` && echo "Stopped"
+	fi
+elif [[ "$STATUS" == "status" ]]; then
+	echo `check_vpn`
+else
+	echo "Unknown option: $STATUS. Possible options: [start|stop|status]"
+fi
